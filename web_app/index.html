@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Polymer State</title>
+
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+  <link rel="import" href="../bower_components/polymer/polymer.html">
+</head>
+<body>
+
+    <script>
+        window.PolymerState = {
+            state: {},
+            Behavior: {
+                listeners: {
+                    "STATE-UPDATE": "_updateState"
+                },
+                ready: function () {
+                    this.state = PolymerState.state;
+                    
+                    for (let key in this.properties) {
+                        if (this.properties.hasOwnProperty(key)) {
+                            let prop = this.properties[key];
+                            if (prop.hasOwnProperty("statePath")) {
+                                let objHolder = [this.state];
+                                let pathParts = prop.statePath.split(".");
+                                for (let i = 0; i < pathParts.length; i++) {
+                                    let path = pathParts[i];
+                                    let nestedObj = objHolder.pop();
+                                    if (!nestedObj.hasOwnProperty(path)) {
+                                        if (i === pathParts.length - 1) {
+                                            nestedObj[path] = prop.value;
+                                        }
+                                        else {
+                                            nestedObj[path] = {};
+                                        }
+                                    }
+                                    objHolder.push(nestedObj[path]);
+                                }
+                                this.set(key, objHolder.pop());
+                            }
+                        }
+                    }
+                },
+                _updateState: function (e) {
+                    this.reduce(e.detail.type, e.detail.data);
+                }
+            }
+        };
+    </script>
+
+    <dom-module id="user-display">
+        <template>
+            [[user.name]] - [[user.uid]]
+        </template>
+
+        <script>
+            Polymer({
+                is: "user-display",
+                behaviors: [PolymerState.Behavior],
+                properties: {
+                    user: {
+                        type: Object,
+                        value: { "name": "Angela", "uid": "azhang" },
+                        statePath: "profile.user"
+                    }
+                },
+                ready: function () {
+                    this.fire("STATE-UPDATE", {
+                        "type": "set-user",
+                        "data": { "name": "Peter", "uid": "czhang" }
+                    });
+                },
+                reduce: function (type, data) {
+                    console.log(JSON.stringify(this.state));
+                    switch (type) {
+                        case "set-user":
+                            this.set("state.profile.user", data);
+                            break;
+                    }
+                    console.log(JSON.stringify(this.state));
+                }
+            });
+        </script>
+    </dom-module>
+
+    <dom-module id="polymer-app">
+        <template>
+            <user-display></user-display>
+        </template>
+
+        <script>
+            Polymer({
+                is: "polymer-app"
+            });
+        </script>
+    </dom-module>
+
+    <polymer-app></polymer-app>
+
+    <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+</body>
+</html>

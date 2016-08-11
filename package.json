@@ -1,0 +1,11 @@
+{
+  "name": "polymer-state",
+  "version": "1.0.0",
+  "devDependencies": {
+    "bower": "^1.7.9",
+    "node-static": "^0.7.8"
+  },
+  "scripts": {
+    "bower": "bower"
+  }
+}
