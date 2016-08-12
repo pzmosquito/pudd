@@ -1,0 +1,69 @@
+<script>
+    window.Pudd = {};
+
+    // state
+    Pudd.State = {};
+    Object.defineProperty(Pudd.State, "state", {
+        get: function () {
+            return this.value;
+        },
+        set: function (newValue) {
+            this.value = newValue;
+            console.log("setting state: " + JSON.stringify(newValue));
+        }
+    });
+
+    // behavior
+    Pudd.Behavior = {
+        listeners: {
+            "STATE-UPDATE": "_updateState"
+        },
+        ready: function () {
+            for (let key in this.properties) {
+                if (this.properties.hasOwnProperty(key)) {
+                    let prop = this.properties[key];
+                    if (prop.hasOwnProperty("statePath")) {
+                        let objHolder = [Pudd.State.state];
+                        let pathParts = prop.statePath.split(".");
+                        for (let i = 0; i < pathParts.length; i++) {
+                            let part = pathParts[i];
+                            let nestedObj = objHolder.pop();
+                            if (!nestedObj.hasOwnProperty(part)) {
+                                Object.defineProperty(nestedObj, part, {
+                                    get: function () {
+                                        return this.value;
+                                    },
+                                    set: function (newValue) {
+                                        this.value = newValue;
+                                        console.log("setting " + prop.statePath + ": " + JSON.stringify(newValue));
+                                    }
+                                });
+                                nestedObj[part] = i === pathParts.length - 1 ? prop.value : {};
+                            }
+                            objHolder.push(nestedObj[part]);
+                        }
+                        this.set(key, objHolder.pop());
+                    }
+                }
+            }
+        },
+        initState: function (value) {
+            Pudd.State.state = value;
+        },
+        setState: function (stateObj) {
+            for (let path in stateObj) {
+                for (let key in this.properties) {
+                    if (this.properties.hasOwnProperty(key)) {
+                        let prop = this.properties[key];
+                        if (prop.hasOwnProperty("statePath") && prop.statePath === path) {
+                            this.set(key, stateObj[path]);
+                        }
+                    }
+                }
+            }
+        },
+        _updateState: function (e) {
+            this.reduce(e.detail.type, e.detail.data, Pudd.State.state);
+        }
+    };
+</script>

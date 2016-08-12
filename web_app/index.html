@@ -9,59 +9,19 @@
   <meta http-equiv="Expires" content="0" />
 
   <link rel="import" href="../bower_components/polymer/polymer.html">
+  <link rel="import" href="pudd.html">
 </head>
 <body>
-
-    <script>
-        window.PolymerState = {
-            state: {},
-            Behavior: {
-                listeners: {
-                    "STATE-UPDATE": "_updateState"
-                },
-                ready: function () {
-                    this.state = PolymerState.state;
-                    
-                    for (let key in this.properties) {
-                        if (this.properties.hasOwnProperty(key)) {
-                            let prop = this.properties[key];
-                            if (prop.hasOwnProperty("statePath")) {
-                                let objHolder = [this.state];
-                                let pathParts = prop.statePath.split(".");
-                                for (let i = 0; i < pathParts.length; i++) {
-                                    let path = pathParts[i];
-                                    let nestedObj = objHolder.pop();
-                                    if (!nestedObj.hasOwnProperty(path)) {
-                                        if (i === pathParts.length - 1) {
-                                            nestedObj[path] = prop.value;
-                                        }
-                                        else {
-                                            nestedObj[path] = {};
-                                        }
-                                    }
-                                    objHolder.push(nestedObj[path]);
-                                }
-                                this.set(key, objHolder.pop());
-                            }
-                        }
-                    }
-                },
-                _updateState: function (e) {
-                    this.reduce(e.detail.type, e.detail.data);
-                }
-            }
-        };
-    </script>
-
-    <dom-module id="user-display">
+    <dom-module id="user-name">
         <template>
-            [[user.name]] - [[user.uid]]
+            [[user.name]]
+            <button type="button" on-tap="changeUser">Change User</button>
         </template>
 
         <script>
             Polymer({
-                is: "user-display",
-                behaviors: [PolymerState.Behavior],
+                is: "user-name",
+                behaviors: [Pudd.Behavior],
                 properties: {
                     user: {
                         type: Object,
@@ -69,20 +29,41 @@
                         statePath: "profile.user"
                     }
                 },
-                ready: function () {
+                changeUser: function () {
                     this.fire("STATE-UPDATE", {
                         "type": "set-user",
                         "data": { "name": "Peter", "uid": "czhang" }
                     });
                 },
-                reduce: function (type, data) {
-                    console.log(JSON.stringify(this.state));
+                reduce: function (type, data, state) {
+                    console.log(JSON.stringify(this.user));
                     switch (type) {
                         case "set-user":
-                            this.set("state.profile.user", data);
+                            //this.setState({ "profile.user": data });
+                            state.profile.user = data;
                             break;
                     }
-                    console.log(JSON.stringify(this.state));
+                    console.log(JSON.stringify(this.user));
+                    console.log(JSON.stringify(Pudd.State.state));
+                }
+            });
+        </script>
+    </dom-module>
+
+    <dom-module id="user-uid">
+        <template>
+            [[user.uid]]
+        </template>
+
+        <script>
+            Polymer({
+                is: "user-uid",
+                behaviors: [Pudd.Behavior],
+                properties: {
+                    user: {
+                        type: Object,
+                        statePath: "profile.user"
+                    }
                 }
             });
         </script>
@@ -90,12 +71,18 @@
 
     <dom-module id="polymer-app">
         <template>
-            <user-display></user-display>
+            <user-name></user-name>
+            <hr>
+            <user-uid></user-uid>
         </template>
 
         <script>
             Polymer({
-                is: "polymer-app"
+                is: "polymer-app",
+                behaviors: [Pudd.Behavior],
+                created: function () {
+                    this.initState({});
+                }
             });
         </script>
     </dom-module>
