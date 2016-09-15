@@ -8,6 +8,8 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 
+  <script src="../node_modules/seamless-immutable/seamless-immutable.development.min.js"></script>
+  
   <link rel="import" href="../bower_components/polymer/polymer.html">
   <link rel="import" href="pudd.html">
 </head>
@@ -21,11 +23,11 @@
         <script>
             Polymer({
                 is: "user-name",
-                behaviors: [Pudd.Behavior],
+                behaviors: [Pudd.Observer],
                 properties: {
                     user: {
                         type: Object,
-                        value: { "name": "Angela", "uid": "azhang" },
+                        stateValue: { "name": "Angela", "uid": "azhang" },
                         statePath: "profile.user"
                     }
                 },
@@ -34,17 +36,6 @@
                         "type": "set-user",
                         "data": { "name": "Peter", "uid": "czhang" }
                     });
-                },
-                reduce: function (type, data, state) {
-                    console.log(JSON.stringify(this.user));
-                    switch (type) {
-                        case "set-user":
-                            //this.setState({ "profile.user": data });
-                            state.profile.user = data;
-                            break;
-                    }
-                    console.log(JSON.stringify(this.user));
-                    console.log(JSON.stringify(Pudd.State.state));
                 }
             });
         </script>
@@ -52,13 +43,13 @@
 
     <dom-module id="user-uid">
         <template>
-            [[user.uid]]
+            [[user.uid]] - [[user.name]]
         </template>
 
         <script>
             Polymer({
                 is: "user-uid",
-                behaviors: [Pudd.Behavior],
+                behaviors: [Pudd.Observer],
                 properties: {
                     user: {
                         type: Object,
@@ -71,17 +62,20 @@
 
     <dom-module id="polymer-app">
         <template>
-            <user-name></user-name>
+            <user-name pudd-state="[[puddState]]"></user-name>
             <hr>
-            <user-uid></user-uid>
+            <user-uid pudd-state="[[puddState]]"></user-uid>
         </template>
 
         <script>
             Polymer({
                 is: "polymer-app",
-                behaviors: [Pudd.Behavior],
-                created: function () {
-                    this.initState({});
+                behaviors: [Pudd.Observer, Pudd.Listener],
+                reduce: function (state, type, data, e) {
+                    switch (type) {
+                        case "set-user":
+                            return state.setIn(["profile", "user"], data);
+                    }
                 }
             });
         </script>

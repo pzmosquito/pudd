@@ -1,69 +1,55 @@
 <script>
-    window.Pudd = {};
-
-    // state
-    Pudd.State = {};
-    Object.defineProperty(Pudd.State, "state", {
-        get: function () {
-            return this.value;
-        },
-        set: function (newValue) {
-            this.value = newValue;
-            console.log("setting state: " + JSON.stringify(newValue));
-        }
-    });
-
-    // behavior
-    Pudd.Behavior = {
-        listeners: {
-            "STATE-UPDATE": "_updateState"
-        },
-        ready: function () {
-            for (let key in this.properties) {
-                if (this.properties.hasOwnProperty(key)) {
-                    let prop = this.properties[key];
-                    if (prop.hasOwnProperty("statePath")) {
-                        let objHolder = [Pudd.State.state];
-                        let pathParts = prop.statePath.split(".");
-                        for (let i = 0; i < pathParts.length; i++) {
-                            let part = pathParts[i];
-                            let nestedObj = objHolder.pop();
-                            if (!nestedObj.hasOwnProperty(part)) {
-                                Object.defineProperty(nestedObj, part, {
-                                    get: function () {
-                                        return this.value;
-                                    },
-                                    set: function (newValue) {
-                                        this.value = newValue;
-                                        console.log("setting " + prop.statePath + ": " + JSON.stringify(newValue));
-                                    }
-                                });
-                                nestedObj[part] = i === pathParts.length - 1 ? prop.value : {};
-                            }
-                            objHolder.push(nestedObj[part]);
-                        }
-                        this.set(key, objHolder.pop());
-                    }
+    window.Pudd = window.Pudd || {
+        Observer: {
+            properties: {
+                puddState: {
+                    type: Object,
+                    value: { "state": Immutable.from({}) }
                 }
-            }
-        },
-        initState: function (value) {
-            Pudd.State.state = value;
-        },
-        setState: function (stateObj) {
-            for (let path in stateObj) {
-                for (let key in this.properties) {
+            },
+            observers: [
+                "puddStateObserver(puddState.state)"
+            ],
+            puddStateObserver: function (state) {
+                for (var key in this.properties) {
                     if (this.properties.hasOwnProperty(key)) {
-                        let prop = this.properties[key];
-                        if (prop.hasOwnProperty("statePath") && prop.statePath === path) {
-                            this.set(key, stateObj[path]);
+                        var prop = this.properties[key];
+                        if (prop.hasOwnProperty("statePath")) {
+                            var pathParts = prop.statePath.split(".");
+                            var objHolder = state;
+                            for (var i = 0; i < pathParts.length; i++) {
+                                if (objHolder[pathParts[i]] === undefined) {
+                                    if (i === pathParts.length - 1) {
+                                        objHolder = prop.stateValue;
+                                        this.puddState.state = state.setIn(pathParts, objHolder);
+                                    }
+                                    else {
+                                        objHolder = {};
+                                        this.puddState.state = state.setIn(pathParts.slice(0, i - 1), objHolder);
+                                    }
+                                }
+                                else {
+                                    objHolder = objHolder[pathParts[i]];
+                                }
+                            }
+                            this.set(key, objHolder);
                         }
                     }
                 }
             }
         },
-        _updateState: function (e) {
-            this.reduce(e.detail.type, e.detail.data, Pudd.State.state);
+        Listener: {
+            listeners: {
+                "STATE-UPDATE": "_updateState"
+            },
+            _updateState: function (e) {
+                e.stopPropagation();
+                this.set("puddState.state", this.reduce(this.puddState.state, e.detail.type, e.detail.data, e));
+            },
+            reduce: function (state, type, data, e) {
+                throw "Unimplemented method";
+            }
         }
+
     };
 </script>

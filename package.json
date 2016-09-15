@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "devDependencies": {
     "bower": "^1.7.9",
-    "node-static": "^0.7.8"
+    "node-static": "^0.7.8",
+    "seamless-immutable": "^6.1.1"
   },
   "scripts": {
     "bower": "bower"
