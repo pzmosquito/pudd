@@ -1,55 +1,66 @@
 <script>
-    window.Pudd = window.Pudd || {
-        Observer: {
-            properties: {
-                puddState: {
-                    type: Object,
-                    value: { "state": Immutable.from({}) }
-                }
-            },
-            observers: [
-                "puddStateObserver(puddState.state)"
-            ],
-            puddStateObserver: function (state) {
-                for (var key in this.properties) {
-                    if (this.properties.hasOwnProperty(key)) {
-                        var prop = this.properties[key];
-                        if (prop.hasOwnProperty("statePath")) {
-                            var pathParts = prop.statePath.split(".");
-                            var objHolder = state;
-                            for (var i = 0; i < pathParts.length; i++) {
-                                if (objHolder[pathParts[i]] === undefined) {
-                                    if (i === pathParts.length - 1) {
-                                        objHolder = prop.stateValue;
-                                        this.puddState.state = state.setIn(pathParts, objHolder);
-                                    }
-                                    else {
-                                        objHolder = {};
-                                        this.puddState.state = state.setIn(pathParts.slice(0, i - 1), objHolder);
-                                    }
+    var Pudd = Pudd || {};
+    
+    Pudd.Observer = {
+        properties: {
+            puddState: {
+                type: Object,
+                value: { "state": Immutable.from({}) }
+            }
+        },
+        observers: [
+            "puddStateObserver(puddState.state)"
+        ],
+        puddStateObserver: function (state) {
+            for (var key in this.properties) {
+                if (this.properties.hasOwnProperty(key)) {
+                    var prop = this.properties[key];
+                    if (prop.hasOwnProperty("statePath")) {
+                        var pathParts = prop.statePath.split(".");
+                        var objHolder = state;
+                        for (var i = 0; i < pathParts.length; i++) {
+                            if (objHolder[pathParts[i]] === undefined) {
+                                if (i === pathParts.length - 1) {
+                                    objHolder = prop.stateValue;
+                                    this.puddState.state = state.setIn(pathParts, objHolder);
                                 }
                                 else {
-                                    objHolder = objHolder[pathParts[i]];
+                                    objHolder = {};
+                                    this.puddState.state = state.setIn(pathParts.slice(0, i - 1), objHolder);
                                 }
                             }
-                            this.set(key, objHolder);
+                            else {
+                                objHolder = objHolder[pathParts[i]];
+                            }
                         }
+                        this.set(key, objHolder);
                     }
                 }
             }
-        },
-        Listener: {
-            listeners: {
-                "STATE-UPDATE": "_updateState"
-            },
-            _updateState: function (e) {
-                e.stopPropagation();
-                this.set("puddState.state", this.reduce(this.puddState.state, e.detail.type, e.detail.data, e));
-            },
-            reduce: function (state, type, data, e) {
-                throw "Unimplemented method";
-            }
         }
-
     };
+
+    Pudd.Listener = [Pudd.Observer, {
+        listeners: {
+            "STATE-UPDATE": "_updateState"
+        },
+        _updateState: function (e) {
+            e.stopPropagation();
+            this.set("puddState.state", this._reduce(e.detail.type, e.detail.data, e));
+        },
+        _reduce: function (type, data, e) {
+            if (!this.reducers) {
+                throw "reducers is not defined.";
+            }
+            if (!Array.isArray(this.reducers)) {
+                throw "reducers must be an Array.";
+            }
+            
+            let reducer = this.reducers.find(obj => obj.hasOwnProperty(type));
+            if (reducer === undefined) {
+                throw "reducer for '" + type + "' is not defined";
+            }
+            return reducer[type](this.puddState.state, data, e);
+        }
+    }];
 </script>

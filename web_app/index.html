@@ -12,6 +12,7 @@
   
   <link rel="import" href="../bower_components/polymer/polymer.html">
   <link rel="import" href="pudd.html">
+  <link rel="import" href="reducers/user.html">
 </head>
 <body>
     <dom-module id="user-name">
@@ -70,13 +71,8 @@
         <script>
             Polymer({
                 is: "polymer-app",
-                behaviors: [Pudd.Observer, Pudd.Listener],
-                reduce: function (state, type, data, e) {
-                    switch (type) {
-                        case "set-user":
-                            return state.setIn(["profile", "user"], data);
-                    }
-                }
+                behaviors: [Pudd.Listener],
+                reducers: [PuddReducer.User]
             });
         </script>
     </dom-module>
