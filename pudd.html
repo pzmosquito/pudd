@@ -1,0 +1,180 @@
+<script>
+    /**
+     * pudd 0.1
+     * 2016-10-03
+     * 
+     * 
+     * MIT License
+     * 
+     * Copyright (c) 2016 pudd
+     * 
+     * Permission is hereby granted, free of charge, to any person obtaining a copy
+     * of this software and associated documentation files (the "Software"), to deal
+     * in the Software without restriction, including without limitation the rights
+     * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+     * copies of the Software, and to permit persons to whom the Software is
+     * furnished to do so, subject to the following conditions:
+     * 
+     * The above copyright notice and this permission notice shall be included in all
+     * copies or substantial portions of the Software.
+     * 
+     * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+     * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+     * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+     * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+     * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+     * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+     * SOFTWARE.
+     */
+    
+    var Pudd = Pudd || {};
+    
+    /**
+     * for presentational elements that map state path to properties
+     */
+    Pudd.Observer = {
+        properties: {
+            puddState: Object
+        },
+        observers: [
+            "_puddStateObserver(puddState.state)"
+        ],
+        
+        /**
+         * observe state change and update state properties
+         */
+        _puddStateObserver: function (state) {
+            for (var key in this.properties) {
+                if (this.properties.hasOwnProperty(key)) {
+                    var prop = this.properties[key];
+                    // map state path to properties based on statePath key
+                    if (prop.hasOwnProperty("statePath")) {
+                        var pathParts = prop.statePath.split(".");
+                        var objHolder = state;
+                        for (var i = 0; i < pathParts.length; i++) {
+                            if (objHolder[pathParts[i]] === undefined) {
+                                if (i === pathParts.length - 1) {
+                                    // map stateValue to property if state path does not exists
+                                    objHolder = prop.stateValue;
+                                    this.puddState.state = state.setIn(pathParts, objHolder);
+                                }
+                                else {
+                                    // state path will be created if it does not exsits
+                                    objHolder = {};
+                                    this.puddState.state = state.setIn(pathParts.slice(0, i - 1), objHolder);
+                                }
+                            }
+                            else {
+                                objHolder = objHolder[pathParts[i]];
+                            }
+                        }
+                        this.set(key, objHolder);
+                    }
+                }
+            }
+        }
+    };
+
+    /**
+     * for container elements that listen for STATE-UPDATE event
+     */
+    Pudd.Listener = {
+        properties: {
+            puddState: Object
+        },
+        listeners: {
+            "STATE-UPDATE": "_updateState"
+        },
+        
+        /**
+         * call this function in root element to initialize state
+         */
+        puddInit: function () {
+            this.puddState = {
+                "state": Immutable.from({}),
+                "status": {
+                    "isFetching": false,
+                    "fetchingType": null
+                }
+            };
+
+            // keep this log for better traceability, can be safely removed if necessary
+            console.log(`** pudd state is initialized.`);
+        },
+
+        /**
+         * update state
+         */
+        _updateState: function (e) {
+            e.stopPropagation();
+
+            // check if state is currently fetching to avoid race condition
+            if (!this._isFetching()) {
+                // set current fetching to true
+                this._startFetching(e.detail.type);
+                
+                // keep this log for better traceability, can be safely removed if necessary
+                console.log(`** STATE-UPDATE: ${e.detail.type}`);
+                
+                // update state and notify path
+                this.set("puddState.state", this._reduce(e.detail.type, e.detail.data, e));
+                
+                // set current fetching to false
+                this._stopFetching();
+            }
+            else {
+                // keep this log for better traceability, can be safely removed if necessary
+                console.log(`** STATE-UPDATE: ${e.detail.type} [busy fetching ${this.puddState.status.fetchingType}]`);
+
+                // try again at microtask timing
+                this.async(() => {
+                    this._updateState(e);
+                });
+            }            
+        },
+
+        /**
+         * reducer
+         */
+        _reduce: function (type, data, e) {
+            // check if reducers if defined
+            if (!this.reducers) {
+                this._stopFetching();
+                throw "reducers property is not defined.";
+            }
+
+            // check if reducers is type of Array
+            if (!Array.isArray(this.reducers)) {
+                this._stopFetching();
+                throw "reducers property must be an Array.";
+            }
+
+            // find reducer based on type
+            var reducer = this.reducers.find(obj => obj.hasOwnProperty(type));
+            
+            // check if reducer based on type is defined
+            if (reducer === undefined) {
+                this._stopFetching();
+                throw "reducer '" + type + "' is not defined.";
+            }
+
+            // execute and return reducer
+            return reducer[type](this.puddState.state, data, e);
+        },
+
+        /**
+         * utility functions
+         */
+        _startFetching: function (type) {
+            this.puddState.status.isFetching = true;
+            this.puddState.status.fetchingType = type;
+        },
+        _stopFetching: function () {
+            this.puddState.status.isFetching = false;
+            this.puddState.status.fetchingType = null;
+        },
+        _isFetching: function () {
+            return this.puddState.status.isFetching;
+        }
+    };
+</script>
