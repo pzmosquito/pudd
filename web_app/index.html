@@ -15,7 +15,7 @@
   <link rel="import" href="reducers/user.html">
 </head>
 <body>
-    <dom-module id="user-name">
+    <dom-module id="user-form">
         <template>
             [[user.name]]
             <button type="button" on-tap="changeUser">Change User</button>
@@ -23,33 +23,33 @@
 
         <script>
             Polymer({
-                is: "user-name",
+                is: "user-form",
                 behaviors: [Pudd.Observer],
                 properties: {
                     user: {
                         type: Object,
-                        stateValue: { "name": "Angela", "uid": "azhang" },
+                        stateValue: { "name": "John Doe", "uid": "jdoe" },
                         statePath: "profile.user"
                     }
                 },
                 changeUser: function () {
                     this.fire("STATE-UPDATE", {
                         "type": "set-user",
-                        "data": { "name": "Peter", "uid": "czhang" }
+                        "data": { "name": "Peter Zhang", "uid": "czhang" }
                     });
                 }
             });
         </script>
     </dom-module>
 
-    <dom-module id="user-uid">
+    <dom-module id="user-display">
         <template>
             [[user.uid]] - [[user.name]]
         </template>
 
         <script>
             Polymer({
-                is: "user-uid",
+                is: "user-display",
                 behaviors: [Pudd.Observer],
                 properties: {
                     user: {
@@ -63,16 +63,19 @@
 
     <dom-module id="polymer-app">
         <template>
-            <user-name pudd-state="[[puddState]]"></user-name>
+            <user-form pudd-state="[[puddState]]"></user-form>
             <hr>
-            <user-uid pudd-state="[[puddState]]"></user-uid>
+            <user-display pudd-state="[[puddState]]"></user-display>
         </template>
 
         <script>
             Polymer({
                 is: "polymer-app",
                 behaviors: [Pudd.Listener],
-                reducers: [PuddReducer.User]
+                reducers: [PuddReducer.User],
+                ready: function () {
+                    this.puddInit();
+                }
             });
         </script>
     </dom-module>
