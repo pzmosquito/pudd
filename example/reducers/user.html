@@ -1,0 +1,8 @@
+<script>
+    var PuddReducer = PuddReducer || {};
+    PuddReducer.User = {
+        "input-user": function (state, data, e) {
+            return state.setIn(["user", "name"], data.value);
+        }
+    };
+</script>

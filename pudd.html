@@ -44,14 +44,14 @@
          * observe state change and update state properties
          */
         _puddStateObserver: function (state) {
-            for (var key in this.properties) {
+            for (let key in this.properties) {
                 if (this.properties.hasOwnProperty(key)) {
-                    var prop = this.properties[key];
+                    let prop = this.properties[key];
                     // map state path to properties based on statePath key
                     if (prop.hasOwnProperty("statePath")) {
-                        var pathParts = prop.statePath.split(".");
-                        var objHolder = state;
-                        for (var i = 0; i < pathParts.length; i++) {
+                        let pathParts = prop.statePath.split(".");
+                        let objHolder = state;
+                        for (let i = 0; i < pathParts.length; i++) {
                             if (objHolder[pathParts[i]] === undefined) {
                                 if (i === pathParts.length - 1) {
                                     // map stateValue to property if state path does not exists
@@ -150,7 +150,7 @@
             }
 
             // find reducer based on type
-            var reducer = this.reducers.find(obj => obj.hasOwnProperty(type));
+            let reducer = this.reducers.find(obj => obj.hasOwnProperty(type));
             
             // check if reducer based on type is defined
             if (reducer === undefined) {

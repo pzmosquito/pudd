@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Polymer State</title>
+
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+  <script src="../node_modules/seamless-immutable/seamless-immutable.development.min.js"></script>
+  
+  <link rel="import" href="../bower_components/polymer/polymer.html">
+  <link rel="import" href="../pudd.html">
+  <link rel="import" href="reducers/user.html">
+</head>
+<body>
+    <dom-module id="user-input">
+        <template>
+            <input type="text" on-input="userInput">
+        </template>
+
+        <script>
+            Polymer({
+                is: "user-input",
+                behaviors: [Pudd.Observer],
+                userInput: function (e) {
+                    this.fire("STATE-UPDATE", {
+                        "type": "input-user",
+                        "data": { "value": e.currentTarget.value }
+                    });
+                }
+            });
+        </script>
+    </dom-module>
+
+    <dom-module id="user-display">
+        <template>
+            User is: [[username]]
+        </template>
+
+        <script>
+            Polymer({
+                is: "user-display",
+                behaviors: [Pudd.Observer],
+                properties: {
+                    username: {
+                        type: String,
+                        statePath: "user.name",
+                        stateValue: "none"
+                    }
+                }
+            });
+        </script>
+    </dom-module>
+
+    <dom-module id="user-app">
+        <template>
+            <user-input></user-input>
+            <user-display pudd-state="[[puddState]]"></user-display>
+        </template>
+
+        <script>
+            Polymer({
+                is: "user-app",
+                behaviors: [Pudd.Listener],
+                reducers: [PuddReducer.User],
+                ready: function () {
+                    this.puddInit();
+                }
+            });
+        </script>
+    </dom-module>
+
+    <user-app></user-app>
+
+    <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+</body>
+</html>
