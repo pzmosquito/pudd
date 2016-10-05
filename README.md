@@ -108,6 +108,7 @@ Now let's create the reducer file `reducer-user.html`
       // "data" argument matches the "data" of the STATE-UPDATE event detail
       // "e" argument is the STATE-UPDATE event
       "input-user": function (state, data, e) {
+        // use seamless-immutable js to set the value to state path (as an array)
         return state.setIn(["user", "name"], data.value);
       }
     };
