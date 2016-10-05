@@ -7,7 +7,7 @@ With pudd, you don't need to worry about complicated data binding, it'll automat
 ## Concept
 Pudd uses the concept of container element and presentational element.
 - Container element deals with how things work
-- Persentational element deals with how things look.
+- Presentational element deals with how things look.
 
 Basically, container elements are specific to the application, presentational elements are reusable elements. 
 
@@ -71,12 +71,13 @@ in `<user-display>` element, we simply display the value:
 in `<user-app>` root element, we include the other 2 elements:
 ```html
 <link rel="import" href="pudd.html">
+<link rel="import" href="reducer-user.html">
 <link rel="import" href="user-input.html">
 <link rel="import" href="user-display.html">
-<link rel="import" href="reducer-user.html">
 <dom-module id="user-app">
   <template>
     <user-input></user-input>
+    <!-- need to pass puddState to presentational elements -->
     <user-display pudd-state="[[puddState]]"></user-display>
   </template>
   <script>
@@ -88,8 +89,8 @@ in `<user-app>` root element, we include the other 2 elements:
       // "reducers" is required for Pudd.Listener behavior.
       // You can include multiple reducers for better file/structure management.
       reducers: [PuddReducer.User],
-      // initialize pudd state in the ready callback.
       ready: function () {
+        // initialize pudd state.
         this.puddInit();
       }
     });
