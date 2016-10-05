@@ -11,7 +11,10 @@ Pudd uses the concept of container element and presentational element.
 
 Basically, container elements are specific to the application, presentational elements are reusable elements. 
 
-### Example
+## Usage
+Simply import pudd.html to your root element or index.html.
+
+## Example
 Let's create a very simple application that contains only 3 elements:
 ```html
 <user-app>
