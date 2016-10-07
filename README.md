@@ -4,13 +4,6 @@ pudd is a state management tool for unidirectional data flow for Polymer 1.x. It
 
 With pudd, you don't need to worry about complicated data binding, it'll automatically bind properties defined with pudd. pudd uses seamless-immutable js to manage the state.
 
-## Concept
-Pudd uses the concept of container element and presentational element.
-- Container element deals with how things work
-- Presentational element deals with how things look.
-
-Basically, container elements are specific to the application, presentational elements are reusable elements. 
-
 ## Usage
 Simply import pudd.html to your root element or index.html.
 
