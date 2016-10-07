@@ -51,8 +51,8 @@
                     if (prop.hasOwnProperty("statePath")) {
                         let pathParts = prop.statePath.split(".");
                         let objHolder = state;
-                        for (let i = 0; i < pathParts.length; i++) {
-                            if (objHolder[pathParts[i]] === undefined) {
+                        pathParts.forEach((pathPart, i) => {
+                            if (objHolder[pathPart] === undefined) {
                                 if (i === pathParts.length - 1) {
                                     // map stateValue to property if state path does not exists
                                     objHolder = prop.stateValue;
@@ -65,9 +65,9 @@
                                 }
                             }
                             else {
-                                objHolder = objHolder[pathParts[i]];
+                                objHolder = objHolder[pathPart];
                             }
-                        }
+                        });
                         this.set(key, objHolder);
                     }
                 }
@@ -91,9 +91,15 @@
          */
         puddInit: function () {
             this.puddState = {
+                // state object
                 "state": Immutable.from({}),
+
+                // status object
                 "status": {
+                    // indicates if state is being updated
                     "isFetching": false,
+
+                    // type of the reducer when state is being updated
                     "fetchingType": null
                 }
             };
@@ -106,6 +112,7 @@
          * update state
          */
         _updateState: function (e) {
+            // prevent the event from being bubbled up  `
             e.stopPropagation();
 
             // check if state is currently fetching to avoid race condition
@@ -124,7 +131,7 @@
             }
             else {
                 // keep this log for better traceability, can be safely removed if necessary
-                console.log(`** STATE-UPDATE: ${e.detail.type} [busy fetching ${this.puddState.status.fetchingType}]`);
+                console.log(`** STATE-UPDATE: ${e.detail.type} [failed, fetching ${this._getFetchingType()}]`);
 
                 // try again at microtask timing
                 this.async(() => {
@@ -175,6 +182,9 @@
         },
         _isFetching: function () {
             return this.puddState.status.isFetching;
+        },
+        _getFetchingType: function () {
+            return this.puddState.status.fetchingType;
         }
     };
 </script>
