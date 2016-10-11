@@ -23,7 +23,6 @@
         <script>
             Polymer({
                 is: "user-input",
-                behaviors: [Pudd.Observer],
                 userInput: function (e) {
                     this.fire("STATE-UPDATE", {
                         "type": "input-user",
