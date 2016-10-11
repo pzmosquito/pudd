@@ -100,7 +100,10 @@
                     "isFetching": false,
 
                     // type of the reducer when state is being updated
-                    "fetchingType": null
+                    "fetchingType": null,
+
+                    // number of tries of upadting state
+                    "fetchingLoop": 0
                 }
             };
 
@@ -135,6 +138,7 @@
 
                 // try again at microtask timing
                 this.async(() => {
+                    this._retryUpdating();
                     this._updateState(e);
                 });
             }            
@@ -175,6 +179,7 @@
         _startFetching: function (type) {
             this.puddState.status.isFetching = true;
             this.puddState.status.fetchingType = type;
+            this.puddState.status.fetchingLoop = 0;
         },
         _stopFetching: function () {
             this.puddState.status.isFetching = false;
@@ -185,6 +190,12 @@
         },
         _getFetchingType: function () {
             return this.puddState.status.fetchingType;
+        },
+        _retryUpdating: function () {
+            // increment fetching loop count by 1, throw when reaching looping limit
+            if (++this.puddState.status.fetchingLoop > 50) {
+                throw "Too may retries of updating state for reducer '" + this.puddState.status.fetchingType + "'";
+            }
         }
     };
 </script>
