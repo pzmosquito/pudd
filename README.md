@@ -7,7 +7,13 @@ With pudd, you don't need to worry about complicated data binding, it'll automat
 ## Usage
 Simply import pudd.html to your root element or index.html.
 
-## Example
+## Set up and run example
+1. run `npm install`
+2. run `npm run bower install`
+3. run `node server`
+4. launch `http://localhost:8080/example`
+
+## Example explanation 
 Let's create a very simple application that contains only 3 elements:
 ```html
 <user-app>
