@@ -102,7 +102,7 @@
                     // type of the reducer when state is being updated
                     "fetchingType": null,
 
-                    // number of tries of upadting state
+                    // number of tries of refetching
                     "fetchingLoop": 0
                 }
             };
@@ -138,7 +138,7 @@
 
                 // try again at microtask timing
                 this.async(() => {
-                    this._retryUpdating();
+                    this._refetch();
                     this._updateState(e);
                 });
             }            
@@ -191,7 +191,7 @@
         _getFetchingType: function () {
             return this.puddState.status.fetchingType;
         },
-        _retryUpdating: function () {
+        _refetch: function () {
             // increment fetching loop count by 1, throw when reaching looping limit
             if (++this.puddState.status.fetchingLoop > 50) {
                 throw "Too may retries of updating state for reducer '" + this.puddState.status.fetchingType + "'";
