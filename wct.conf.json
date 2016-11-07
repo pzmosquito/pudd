@@ -1,0 +1,12 @@
+{
+  "verbose": true,
+  "suites": [
+    "pudd.test.html"
+  ],
+  "plugins": {
+    "local": {
+      "browsers": ["chrome", "firefox"]
+    }
+  },
+  "persistent": false
+}

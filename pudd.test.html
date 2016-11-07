@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="node_modules/web-component-tester/browser.js"></script>
+
+    <script src="node_modules/seamless-immutable/seamless-immutable.development.min.js"></script>
+    
+    <link rel="import" href="bower_components/polymer/polymer.html">
+    <link rel="import" href="pudd.html">
+</head>
+<body>
+    <script>
+        describe("pudd", function () {
+            var elem;
+
+            before(function () {
+                Polymer({
+                    is: "pudd-test",
+                    behaviors: [Pudd.Observer, Pudd.Listener],
+                    properties: {
+                        count: {
+                            type: Number,
+                            statePath: "count.value",
+                            stateValue: 0
+                        }
+                    },
+                    reducers: [{
+                        "increment-count": function (state, data, e) {
+                            return state.setIn(["count", "value"], state.count.value + data.count);
+                        }
+                    }],
+                });
+            });
+
+            beforeEach(function () {
+                elem = document.createElement("pudd-test");
+            });
+
+            afterEach(function () {
+                elem.remove();
+            });
+
+            it("should make sure element exists", function () {
+                expect(elem).to.exist;
+                expect(elem.behaviors.length).to.equal(2);
+            });
+
+            it("should initialize pudd state", function () {
+                expect(elem.puddState).to.be.undefined;
+                elem.puddInit();
+                expect(elem.puddState).to.not.be.undefined;
+                expect(elem.puddState.hasOwnProperty("state")).to.be.true;
+                expect(elem.puddState.hasOwnProperty("status")).to.be.true;
+            });
+
+            it("should set state property", function () {
+                expect(elem.count).to.be.undefined;
+                elem.puddInit();
+                expect(elem.count).to.equal(0);
+            });
+
+            it("should start fetching", function () {
+                elem.puddInit();
+                expect(elem.puddState.status.isFetching).to.be.false;
+                expect(elem.puddState.status.fetchingType).to.be.null;
+                expect(elem.puddState.status.fetchingLoop).to.equal(0);
+                elem._startFetching("test-type");
+                expect(elem.puddState.status.isFetching).to.be.true;
+                expect(elem.puddState.status.fetchingType).to.equal("test-type");
+                expect(elem.puddState.status.fetchingLoop).to.equal(0);
+            });
+
+            it("should stop fetching", function () {
+                elem.puddInit();
+                elem._startFetching("test-type");
+                elem._stopFetching();
+                expect(elem.puddState.status.isFetching).to.be.false;
+                expect(elem.puddState.status.fetchingType).to.be.null;
+                expect(elem.puddState.status.fetchingLoop).to.equal(0);
+            });
+
+            it("should get fetching type", function () {
+                elem.puddInit();
+                expect(elem._getFetchingType()).to.be.null;
+                elem._startFetching("test-type");
+                expect(elem._getFetchingType()).to.equal("test-type");
+            });
+
+            it("should reftech successfully within limit", function () {
+                elem.puddInit();
+                elem._startFetching("test-type");
+                for (let i = 0; i < 50; i++) {
+                    elem._refetch();
+                }
+                expect(elem.puddState.status.fetchingLoop).to.equal(50);
+            });
+
+            it("should fail the refetch with too many attempts", function () {
+                let fn = function () {
+                    for (let i = 0; i < 51; i++) {
+                        elem._refetch();
+                    }
+                }
+                elem.puddInit();
+                elem._startFetching("test-type");
+                expect(fn).to.throw("Too many retries of updating state for reducer 'test-type'");
+            });
+
+            it("should increment the counter", function () {
+                elem.puddInit();
+                expect(elem.count).to.equal(0);
+                elem.fire("STATE-UPDATE", {
+                    "type": "increment-count",
+                    "data": { "count": 1 }
+                });
+                expect(elem.count).to.equal(1);
+                elem.fire("STATE-UPDATE", {
+                    "type": "increment-count",
+                    "data": { "count": 2 }
+                });
+                expect(elem.count).to.equal(3);
+            });
+        });
+  </script>
+</body>
+
+</html>
