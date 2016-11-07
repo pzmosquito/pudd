@@ -13,7 +13,10 @@ Simply import pudd.html to your root element or index.html.
 3. run `node server`
 4. launch `http://localhost:8080/example`
 
-## Example explanation 
+## Test
+run `npm run wct` to run tests
+
+## Example explanation
 Let's create a very simple application that contains only 3 elements:
 ```html
 <user-app>
