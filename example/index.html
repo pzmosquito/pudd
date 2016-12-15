@@ -21,14 +21,16 @@
         </template>
 
         <script>
-            Polymer({
-                is: "user-input",
-                userInput: function (e) {
-                    this.fire("STATE-UPDATE", {
-                        "type": "input-user",
-                        "data": { "value": e.currentTarget.value }
-                    });
-                }
+            window.addEventListener("WebComponentsReady", function () {
+                Polymer({
+                    is: "user-input",
+                    userInput: function (e) {
+                        this.fire("STATE-UPDATE", {
+                            "type": "input-user",
+                            "data": { "value": e.currentTarget.value }
+                        });
+                    }
+                });
             });
         </script>
     </dom-module>
@@ -39,16 +41,18 @@
         </template>
 
         <script>
-            Polymer({
-                is: "user-display",
-                behaviors: [Pudd.Observer],
-                properties: {
-                    username: {
-                        type: String,
-                        statePath: "user.name",
-                        stateValue: "none"
+            window.addEventListener("WebComponentsReady", function () {
+                Polymer({
+                    is: "user-display",
+                    behaviors: [Pudd.Observer],
+                    properties: {
+                        username: {
+                            type: String,
+                            statePath: "user.name",
+                            stateValue: "none"
+                        }
                     }
-                }
+                });
             });
         </script>
     </dom-module>
@@ -60,14 +64,16 @@
         </template>
 
         <script>
-            Polymer({
-                is: "user-app",
-                behaviors: [Pudd.Listener],
-                reducers: [PuddReducer.User],
-                ready: function () {
-                    this.puddInit();
-                }
-            });
+            window.addEventListener("WebComponentsReady", function () {
+                Polymer({
+                    is: "user-app",
+                    behaviors: [Pudd.Listener],
+                    reducers: [PuddReducer.User],
+                    ready: function () {
+                        this.puddInit();
+                    }
+                });
+            })
         </script>
     </dom-module>
 
