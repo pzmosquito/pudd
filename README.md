@@ -88,16 +88,18 @@ in `<user-app>` root element, we include the other 2 elements:
   <script>
     Polymer({
       is: "user-app",
+      
       // Pudd.Root is required for root element to initialize pudd.
       // Pudd.Listener behavior is for listening to STATE-UPDATE event and call reducer.
       
       // it's recommended to user Pudd.Listener only in root element.
       // if Pudd.Listener is used in sub elements, make sure to pass the puddState with 2-way binding
-
       behaviors: [Pudd.Root, Pudd.Listener],
+      
       // "reducers" is required for Pudd.Listener behavior.
       // You can include multiple reducers for better file/structure management.
       reducers: [PuddReducer.User],
+      
       ready: function () {
         // initialize pudd state.
         this.puddInit();
