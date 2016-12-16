@@ -78,16 +78,13 @@
     };
 
     /**
-     * for container elements that listen for STATE-UPDATE event
+     * for root element to initialize pudd
      */
-    Pudd.Listener = {
+    Pudd.Root = {
         properties: {
             puddState: Object
         },
-        listeners: {
-            "STATE-UPDATE": "_updateState"
-        },
-        
+
         /**
          * call this function in root element to initialize state
          */
@@ -111,8 +108,20 @@
 
             // keep this log for better traceability, can be safely removed if necessary
             console.log(`** pudd state is initialized.`);
-        },
+        }
+    };
 
+    /**
+     * for container elements that listen for STATE-UPDATE event
+     */
+    Pudd.Listener = {
+        properties: {
+            puddState: Object
+        },
+        listeners: {
+            "STATE-UPDATE": "_updateState"
+        },
+        
         /**
          * update state
          */

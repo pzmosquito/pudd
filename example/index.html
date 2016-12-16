@@ -67,7 +67,7 @@
             window.addEventListener("WebComponentsReady", function () {
                 Polymer({
                     is: "user-app",
-                    behaviors: [Pudd.Listener],
+                    behaviors: [Pudd.Root, Pudd.Listener],
                     reducers: [PuddReducer.User],
                     ready: function () {
                         this.puddInit();
