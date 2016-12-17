@@ -2,8 +2,8 @@
     /**
      * @preserve
      *
-     * pudd 0.1
-     * 2016-10-03
+     * pudd 0.2
+     * 2016-12-16
      * 
      * 
      * MIT License
@@ -57,7 +57,6 @@
                             for (let pathPart of pathParts) {
                                 if (!objHolder.hasOwnProperty(pathPart)) {
                                     this.puddState.state = state.setIn(pathParts, prop.stateValue);
-                                    objHolder = prop.stateValue;
                                     break;
                                 }
                                 objHolder = objHolder[pathPart];
