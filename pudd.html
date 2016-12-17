@@ -53,23 +53,18 @@
                     if (prop.hasOwnProperty("statePath")) {
                         let pathParts = prop.statePath.split(".");
                         let objHolder = state;
-                        pathParts.forEach((pathPart, i) => {
-                            if (objHolder[pathPart] === undefined) {
-                                if (i === pathParts.length - 1) {
-                                    // map stateValue to property if state path does not exists
-                                    objHolder = prop.stateValue;
-                                    this.puddState.state = state.setIn(pathParts, objHolder);
+                        try {
+                            for (let pathPart of pathParts) {
+                                if (!objHolder.hasOwnProperty(pathPart)) {
+                                    this.puddState.state = state.setIn(pathParts, prop.stateValue);
+                                    break;
                                 }
-                                else {
-                                    // state path will be created if it does not exsits
-                                    objHolder = {};
-                                    this.puddState.state = state.setIn(pathParts.slice(0, i - 1), objHolder);
-                                }
-                            }
-                            else {
                                 objHolder = objHolder[pathPart];
                             }
-                        });
+                        }
+                        catch (e) {
+                            throw "Invalid state path: " + prop.statePath;
+                        }
                         this.set(key, objHolder);
                     }
                 }
