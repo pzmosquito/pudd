@@ -57,6 +57,7 @@
                             for (let pathPart of pathParts) {
                                 if (!objHolder.hasOwnProperty(pathPart)) {
                                     this.puddState.state = state.setIn(pathParts, prop.stateValue);
+                                    objHolder = prop.stateValue;
                                     break;
                                 }
                                 objHolder = objHolder[pathPart];
