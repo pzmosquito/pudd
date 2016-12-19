@@ -2,8 +2,8 @@
     /**
      * @preserve
      *
-     * pudd 0.2
-     * 2016-12-16
+     * pudd 0.3
+     * 2016-12-19
      * 
      * 
      * MIT License
@@ -115,13 +115,13 @@
             puddState: Object
         },
         listeners: {
-            "STATE-UPDATE": "_updateState"
+            "PUDD-STATE-UPDATE": "_updatePuddState"
         },
         
         /**
          * update state
          */
-        _updateState: function (e) {
+        _updatePuddState: function (e) {
             // prevent the event from being bubbled up  `
             e.stopPropagation();
 
@@ -131,7 +131,7 @@
                 this._startFetching(e.detail.type);
                 
                 // keep this log for better traceability, can be safely removed if necessary
-                console.log(`** STATE-UPDATE: ${e.detail.type}`);
+                console.log(`** PUDD-STATE-UPDATE: ${e.detail.type}`);
                 
                 // update state and notify path
                 this.set("puddState.state", this._reduce(e.detail.type, e.detail.data, e));
@@ -141,7 +141,7 @@
             }
             else {
                 // keep this log for better traceability, can be safely removed if necessary
-                console.log(`** STATE-UPDATE: ${e.detail.type} [failed, fetching ${this._getFetchingType()}]`);
+                console.log(`** PUDD-STATE-UPDATE: ${e.detail.type} [failed, fetching ${this._getFetchingType()}]`);
 
                 // try again at microtask timing
                 this.async(() => {

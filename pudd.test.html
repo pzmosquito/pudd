@@ -111,12 +111,12 @@
             it("should increment the counter", function () {
                 elem.puddInit();
                 expect(elem.count).to.equal(0);
-                elem.fire("STATE-UPDATE", {
+                elem.fire("PUDD-STATE-UPDATE", {
                     "type": "increment-count",
                     "data": { "count": 1 }
                 });
                 expect(elem.count).to.equal(1);
-                elem.fire("STATE-UPDATE", {
+                elem.fire("PUDD-STATE-UPDATE", {
                     "type": "increment-count",
                     "data": { "count": 2 }
                 });

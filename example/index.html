@@ -25,7 +25,7 @@
                 Polymer({
                     is: "user-input",
                     userInput: function (e) {
-                        this.fire("STATE-UPDATE", {
+                        this.fire("PUDD-STATE-UPDATE", {
                             "type": "input-user",
                             "data": { "value": e.currentTarget.value }
                         });

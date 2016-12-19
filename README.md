@@ -35,10 +35,10 @@ in `<user-input>` element, we have an input box:
     Polymer({
       is: "user-input",
       userInput: function (e) {
-        // Pudd catches STATE-UPDATE event, with 2 keys in the detail: type, data
+        // Pudd catches PUDD-STATE-UPDATE event, with 2 keys in the detail: type, data
         // "type" is required and must be unique, it identifies the reducer
         // "data" is optional, it contains the data needed for the reducer
-        this.fire("STATE-UPDATE", {
+        this.fire("PUDD-STATE-UPDATE", {
           "type": "input-user",
           "data": { "value": e.currentTarget.value }
         });
