@@ -1,3 +1,7 @@
+#### 0.4 (2016-12-28)
+- updated seamless-immutable dependency to 7.0
+- use seamless-immutable static syntax instead of instance syntax to avoid object property collision
+
 #### 0.3 (2016-12-19)
 - changed event name to avoid potential name collision
 

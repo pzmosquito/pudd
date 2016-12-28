@@ -2,10 +2,10 @@
   "name": "polymer-state",
   "version": "1.0.0",
   "devDependencies": {
-    "bower": "^1.7.9",
-    "mocha": "^3.1.2",
-    "node-static": "^0.7.8",
-    "seamless-immutable": "^6.1.1",
+    "bower": "^1.8.0",
+    "mocha": "^3.2.0",
+    "node-static": "^0.7.9",
+    "seamless-immutable": "^7.0.0",
     "web-component-tester": "^5.0.0"
   },
   "scripts": {
